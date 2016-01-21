@@ -33,7 +33,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 	*	@prereq: must be records in test_notes
 	*/
 	public function testQuery(){
-		$sql = "SELECT * FROM test_notes";
+		$sql = "SELECT * FROM notes";
 		$result = $this->db->query($sql)->num_rows;
 		$this->assertTrue($result > 0); 
 	}
@@ -44,11 +44,11 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 	*		recond record in table has created timedate of "2016-01-10 17:10:10"
 	*/
 	public function testSelect(){
-		$sql = "SELECT text FROM test_notes WHERE id=1";
+		$sql = "SELECT text FROM notes WHERE id=1";
 		$result = $this->db->select($sql);
 		$this->assertEquals("test",$result[0]['text']);
 
-		$sql = "SELECT * FROM test_notes";
+		$sql = "SELECT * FROM notes";
 		$result = $this->db->select($sql);
 		$this->assertTrue(count($result) > 0);
 		$this->assertEquals("2016-01-10 17:10:10", $result[1]['created']);
