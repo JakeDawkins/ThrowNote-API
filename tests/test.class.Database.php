@@ -1,6 +1,7 @@
 <?php
 include("../models/Path.php");
 include(Path::models() . 'config.php');
+include(Path::tests() . 'install.php');
 
 class DatabaseTest extends PHPUnit_Framework_TestCase {
 
@@ -30,7 +31,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/*
-	*	@prereq: must be records in test_notes
+	*	@prereq: must be records in notes
 	*/
 	public function testQuery(){
 		$sql = "SELECT * FROM notes";
@@ -41,7 +42,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 	/*
 	*	@preq: must be records in test_notes where...
 	*		record with id=1 has text value of "test"
-	*		recond record in table has created timedate of "2016-01-10 17:10:10"
+	*		second record in table has created timedate of "2016-01-10 17:10:10"
 	*/
 	public function testSelect(){
 		$sql = "SELECT text FROM notes WHERE id=1";

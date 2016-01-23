@@ -36,6 +36,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("This is a test note...",$this->testNote->getText());
 		$this->assertEquals("2016-01-10 17:10:07",$this->testNote->getCreated());
 		$this->assertEquals("2016-02-11 18:11:08",$this->testNote->getUpdated());
+		$this->assertEquals("clip",$this->testNote->getTags()[1]);
 	}
 
 	public function testToHTMLString(){

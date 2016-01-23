@@ -3,12 +3,15 @@
 require('models/config.php');
 
 $note = new Note();
-$note->fetch(17);
-//echo $note->toHTMLString(); 
+$note->fetch(18);
+echo $note->toHTMLString() . "<br />"; 
 
 //$note->setText("hi ;)");
-//$note->addTag("dudeeee");
-//$note->addTag("catsr");
+$note->addTag("mynewtag");
+$note->addTag("cats");
+echo $note->toHTMLString() . "<br />"; 
+var_dump($note);
+
 //$note->save();
 
 

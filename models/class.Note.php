@@ -6,7 +6,7 @@ class Note {
 	private $text;
 	private $created;
 	private $updated;
-	private $tags;		//string array
+	private $tags;		//string array of tag NAMES, not ID
 
 	function __construct (){
 		$tags = array();
@@ -74,10 +74,15 @@ class Note {
 
 	// @param: String $tag to add to $tags array
 	public function addTag($tag){
-		if(!in_array($tag, $this->tags))
-			$this->tags[] = $tag;
+		if(!is_array($this->tags)){
+			$this->tags = array();
+		} 
+		if(!in_array($tag, $this->tags)){
+			$this->tags[] = $tag;	
+		}
 	}
 
+	// @req: $this->tags must be array
 	// @param: String $tag to remove
 	public function removeTag($tag){
 		if(in_array($tag, $this->tags)){
@@ -89,7 +94,12 @@ class Note {
 	//------------------------ DB METHODS ------------------------
 	/*	
 	* 	fetch(id) -- pulls all a note's data from the DB
-	*	save() -- saves a note to the DB (adds if necessary)
+	*	save() -- saves a note to the DB (adds if necessary) using the following...
+	*		addNewNote() -- adds a note to DB and sets local id from DB
+	*		updateNote() -- changes the text and updated timestamp in DB
+	*		removeAllTagAssociations() -- removes all associated tags from tags_notes DB
+	*		addDBTags() -- adds back tag associations in tags_notes
+	*			getTagID($name) -- look up tag id from DB using tag $name
 	*	delete() -- deletes a note from the DB
 	*/  
 
@@ -130,7 +140,6 @@ class Note {
 		}
 
 		$this->addDBTags();
-
 	}//save
 
 	//handles adding note to the DB and setting local id
@@ -178,29 +187,43 @@ class Note {
 		$db->query($sql);
 	}
 
+	/*
+	*	use to look up tag ids using name.
+	*	@param: String| tag name to search db for
+	*	@ret: int| success: tag id, fail: -1
+	*/
+	function getTagID($name){
+		$db = new Database();
+
+		$sql = "SELECT `id` FROM `tags` WHERE `name`=?";
+		$sql = $db->prepareQuery($sql, $name);
+		
+		$result = $db->select($sql);
+		
+		if(!empty($result)){
+			return $result[0]['id'];	
+		} else {
+			return -1;
+		}
+	}
+
 	function addDBTags(){
 		$db = new Database();
 
 		if(is_array($this->tags)){
 			foreach($this->tags as $tag){
-				$sql = "SELECT id FROM `tags` WHERE `name`=?";
-				$sql = $db->prepareQuery($sql, $tag);
-				$result = $db->select($sql);
+				$tag_id = $this->getTagID($tag);
 
-				if(count($result) == 0) {
+				if($tag_id == -1) {
 				    //id not found. need to add to DB
 					$sql = "INSERT INTO `tags`(`name`) VALUES(?)";
 					$sql = $db->prepareQuery($sql, $tag);
 					
 					$db->query($sql);
 
-					//get id of new tag
-					$sql = "SELECT `id` FROM `tags` WHERE `name`=?";
-					$sql = $db->prepareQuery($sql, $tag);
-					$result = $db->select($sql);
+					//new tag should be added to DB. can get an id now
+					$tag_id = $this->getTagID($tag);
 				}
-
-				$tag_id = $result[0]['id'];
 
 				$sql = "INSERT INTO `tags_notes`(`note`,`tag`) VALUES(?,?)";
 			    $sql = $db->prepareQuery($sql, $this->id, $tag_id);
