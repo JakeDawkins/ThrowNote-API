@@ -279,12 +279,21 @@ class Note {
 	*	Given a note string, pulls out valid tags and returns the tags array	
 	*	@param: String|string of text to extract tags from
 	*	@ret: Array(String)|Array of tags (including #)
+	*	@TODO: find cleaner way to trim space off tags2 items (better regex)
 	*/
 	function findTags($text){
 		//match the hashtags
 		//to make url-fragments (e.g. www.example.com#header) safe, check for beginning of string or space before tag
 		preg_match_all("/(^#\w+)/", $text, $tags); 
 		preg_match_all("/([ ])(#\w+)/", $text, $tags2);
+
+		//trim spaces off tags2 items
+		if(is_array($tags2) && is_array($tags2[0])){	
+			foreach ($tags2[0] as $key => $value) {
+				$tags2[0][$key] = trim($value);
+			}
+		}
+
 		return array_merge($tags[0], $tags2[0]);
 	}
 

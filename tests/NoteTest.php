@@ -168,31 +168,39 @@ class NoteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testFindTags(){
-		$text = "this has a #hashtag a  #badhash-tag and a #goodhash_tag #bad'tag #good0tag #";
+		$text = "#wow this has a #hashtag a  #badhash-tag and a #goodhash_tag #bad'tag #good0tag #";
 		$tags = $this->testNote->findTags($text);
 
-		$this->assertEquals(5,count($tags));
-		$this->assertEquals("#hashtag",$tags[0]);
-		$this->assertEquals("#badhash",$tags[1]);
-		$this->assertEquals("#goodhash_tag",$tags[2]);
-		$this->assertEquals("#bad",$tags[3]);
-		$this->assertEquals("#good0tag",$tags[4]);
+		$this->assertEquals(6,count($tags));
+		$this->assertEquals("#wow",$tags[0]);
+		$this->assertEquals("#hashtag",$tags[1]);
+		$this->assertEquals("#badhash",$tags[2]);
+		$this->assertEquals("#goodhash_tag",$tags[3]);
+		$this->assertEquals("#bad",$tags[4]);
+		$this->assertEquals("#good0tag",$tags[5]);
 	}
 
 	public function testSetTagsFromText(){
-		$text = "this has a #hashtag a  #badhash-tag and a #goodhash_tag #bad'tag #good0tag #";
+		$text = "#wow this has a #hashtag a #badhash-tag and a #goodhash_tag #bad'tag #good0tag #";
 		$this->testNote->setText($text);
 		$this->testNote->setTagsFromText();
 		$tags = $this->testNote->getTags();
 
-		$this->assertEquals(5,count($tags));
-		$this->assertEquals("#hashtag",$tags[0]);
-		$this->assertEquals("#badhash",$tags[1]);
-		$this->assertEquals("#goodhash_tag",$tags[2]);
-		$this->assertEquals("#bad",$tags[3]);
-		$this->assertEquals("#good0tag",$tags[4]);
+		$this->assertEquals(6,count($tags));
+		$this->assertEquals("#wow",$tags[0]);
+		$this->assertEquals("#hashtag",$tags[1]);
+		$this->assertEquals("#badhash",$tags[2]);
+		$this->assertEquals("#goodhash_tag",$tags[3]);
+		$this->assertEquals("#bad",$tags[4]);
+		$this->assertEquals("#good0tag",$tags[5]);
 	}
 
-	
+	public function testLinkifyFromText(){
+		$this->testNote->setText("#aaaa is a #bbbb test of the www.google.com#hi #cccc system #dddd");
+		$this->testNote->linkifyFromText();
+
+		$this->assertEquals("<a href=\"#aaaa\">#aaaa</a> is a <a href=\"#bbbb\">#bbbb</a> test of the <a href=\"http://www.google.com#hi\" >www.google.com#hi</a> <a href=\"#cccc\">#cccc</a> system <a href=\"#dddd\">#dddd</a>", $this->testNote->getText());
+	}
+
 }
 ?>
