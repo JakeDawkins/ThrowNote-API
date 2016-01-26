@@ -2,17 +2,29 @@
 
 require('models/config.php');
 
-$note = new Note();
-$note->fetch(18);
-echo $note->toHTMLString() . "<br />"; 
+//$note = new Note();
+//$note->fetch(23);
 
-//$note->setText("hi ;)");
-$note->addTag("mynewtag");
-$note->addTag("cats");
-echo $note->toHTMLString() . "<br />"; 
-var_dump($note);
+//$note->linkifyFromText();
+//$note->linkifyTagsFromText();
 
-//$note->save();
+//echo $note->getText();
+
+$text = "#this is a #test of the www.google.com#hi tagging #system";
+
+
+preg_match_all("/(^#\w+)/", $text, $tags);
+preg_match_all("/([ ])(#\w+)/", $text, $tags2);
+
+$finalTags = array_merge($tags[0],$tags2[0]);
+
+print_r($tags[0]); 
+echo "<br />";
+print_r($tags2[0]);
+echo "<br />";
+print_r($finalTags);
+
+
 
 
 ?>

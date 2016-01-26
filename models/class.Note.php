@@ -2,7 +2,7 @@
 require_once("config.php");
 
 class Note {
-	private $id;
+	public $id;
 	private $text;
 	private $created;
 	private $updated;
@@ -93,6 +93,7 @@ class Note {
 
 	//------------------------ DB METHODS ------------------------
 	/*	
+	*	fetchByUser(id) -- gets array of notes for user with id
 	* 	fetch(id) -- pulls all a note's data from the DB
 	*	save() -- saves a note to the DB (adds if necessary) using the following...
 	*		addNewNote() -- adds a note to DB and sets local id from DB
@@ -103,12 +104,42 @@ class Note {
 	*	delete() -- deletes a note from the DB
 	*/  
 
+
+	/*
+	*	gets all notes associated to a user and returns array of initialized 
+	*	notes
+	*
+	*	@param: int|User ID
+	*	@ret: Array(Note)| notes of a user
+	*	@TODO: use user id instead of 1, limit num of notes
+	*/
+	static function fetchByUser($id){
+		$db = new Database();
+		$sql = "SELECT `id` FROM `notes` WHERE `owner`=?";
+		$sql = $db->prepareQuery($sql, 1); //TODO -- fix for any user
+
+
+		$results = $db->select($sql);
+		if(is_array($results)){
+			$notes = array();
+
+			foreach($results as $result){
+				$newNote = new Note();
+				$newNote->fetch($result['id']);
+				$notes[] = $newNote;
+			}
+			return $notes;
+		}
+
+		return false;
+	}
+
 	// fetches a note from the DB and sets up the local variables
 	function fetch($id){
 		$db = new Database();
 		$sql = "SELECT * FROM `notes` WHERE `id`= ?";
 		$sql = $db->prepareQuery($sql, $id);
-		
+
 		$results = $db->select($sql);
 
 		$this->id = $id;
@@ -128,6 +159,15 @@ class Note {
 			}
 		}	
 	}//fetch
+
+	/*
+	*	Total preparation for saving a note including tagging
+	*	@req: note text field set
+	*/
+	function prepareAndSaveNote(){
+		$this->setTagsFromText();
+		$this->save();
+	}
 
 	function save(){
 		$db = new Database();
@@ -207,6 +247,7 @@ class Note {
 		}
 	}
 
+	//adds back tag associations in tags_notes
 	function addDBTags(){
 		$db = new Database();
 
@@ -231,6 +272,51 @@ class Note {
 			}//foreach			
 		}//if
 	}//addDBTags
+
+	//------------------------ HELPER METHODS ------------------------
+
+	/*
+	*	Given a note string, pulls out valid tags and returns the tags array	
+	*	@param: String|string of text to extract tags from
+	*	@ret: Array(String)|Array of tags (including #)
+	*/
+	function findTags($text){
+		//match the hashtags
+		//to make url-fragments (e.g. www.example.com#header) safe, check for beginning of string or space before tag
+		preg_match_all("/(^#\w+)/", $text, $tags); 
+		preg_match_all("/([ ])(#\w+)/", $text, $tags2);
+		return array_merge($tags[0], $tags2[0]);
+	}
+
+	/*
+	* 	uses the note's set text to find the tags. Sets the local $tags array
+	*	@side-effects: sets local note->tags variable to array of tag strings
+	*/
+	function setTagsFromText(){
+		if(!empty($this->text)){
+			$this->tags = $this->findTags($this->text);	
+		}	
+	}
+
+	/*
+	*	adds anchor to URLs and hashtags for easy redirection/search
+	*/
+	function linkifyFromText(){
+		$text = $this->text;
+
+		//match links
+		//matches www, http://, https://, http://www, https://www, ftp:// ftps://
+		$text = preg_replace("/(^|[\n ])([\w]*?)([\w]*?:\/\/[\w]+[^ \,\"\n\r\t<]*)/is", "$1$2<a href=\"$3\" >$3</a>", $text);  
+		$text = preg_replace("/(^|[\n ])([\w]*?)((www)\.[^ \,\"\t\n\r<]*)/is", "$1$2<a href=\"http://$3\" >$3</a>", $text);
+		$text = preg_replace("/(^|[\n ])([\w]*?)((ftp)\.[^ \,\"\t\n\r<]*)/is", "$1$2<a href=\"ftp://$3\" >$3</a>", $text);  
+		$text = preg_replace("/(^|[\n ])([a-z0-9&\-_\.]+?)@([\w\-]+\.([\w\-\.]+)+)/i", "$1<a href=\"mailto:$2@$3\">$2@$3</a>", $text);  
+
+		//match the hashtags
+		//to make url-fragments (e.g. www.example.com#header) safe, check for beginning of string or space before tag
+		$text = preg_replace("/([ ])(#\w+)/", " <a href=\"$2\">$2</a>", $text); //check space before
+		$text = preg_replace("/(^#\w+)/", "<a href=\"$1\">$1</a>", $text); //check at beginning of string
+		$this->text = $text;
+	}
 }
 
 
