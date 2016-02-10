@@ -1,0 +1,7 @@
+modifications
+
+1 - removed site templates
+2 - removed header.php loading
+3 - added proper indents
+4 - removed echo statements
+5 - closed all unclosed divs

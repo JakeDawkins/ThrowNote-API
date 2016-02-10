@@ -9,7 +9,7 @@ class Path {
 	}
 
 	static public function base() {
-		return '/Users/Jake/Sites/ThrowNote/';
+		return '/Users/Jake/Sites/ThrowNote/public_html/';
 	}
 
 	static public function css() {
@@ -41,7 +41,7 @@ class Path {
 	}
 
 	static public function dbSettings() {
-		return '/Users/Jake/Sites/db-settings.php';
+		return '/Users/Jake/Sites/ThrowNote/db-settings.php';
 	}
 
 }
