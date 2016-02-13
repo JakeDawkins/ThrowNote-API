@@ -8,8 +8,7 @@ http://usercake.com
 //------------------------------------------------------------------------------
 
 //Retrieve a list of all .php files in models/languages
-function getLanguageFiles()
-{
+function getLanguageFiles(){
 	$directory = "models/languages/";
 	$languages = glob($directory . "*.php");
 	//print each file name
@@ -17,8 +16,7 @@ function getLanguageFiles()
 }
 
 //Retrieve a list of all .php files in root files folder
-function getPageFiles()
-{
+function getPageFiles(){
 	$directory = "";
 	$pages = glob($directory . "*.php");
 	//print each file name
@@ -29,43 +27,33 @@ function getPageFiles()
 }
 
 //Destroys a session as part of logout
-function destroySession($name)
-{
-	if(isset($_SESSION[$name]))
-	{
+function destroySession($name){
+	if(isset($_SESSION[$name])){
 		$_SESSION[$name] = NULL;
 		unset($_SESSION[$name]);
 	}
 }
 
 //Generate a unique code
-function getUniqueCode($length = "")
-{	
+function getUniqueCode($length = ""){	
 	$code = md5(uniqid(rand(), true));
 	if ($length != "") return substr($code, 0, $length);
 	else return $code;
 }
 
 //Generate an activation key
-function generateActivationToken($gen = null)
-{
-	do
-	{
+function generateActivationToken($gen = null){
+	do{
 		$gen = md5(uniqid(mt_rand(), false));
-	}
-	while(validateActivationToken($gen));
+	} while(validateActivationToken($gen));
 	return $gen;
 }
 
 //@ Thanks to - http://phpsec.org
-function generateHash($plainText, $salt = null)
-{
-	if ($salt === null)
-	{
+function generateHash($plainText, $salt = null){
+	if ($salt === null){
 		$salt = substr(md5(uniqid(rand(), true)), 0, 25);
-	}
-	else
-	{
+	} else {
 		$salt = substr($salt, 0, 25);
 	}
 	
@@ -73,60 +61,47 @@ function generateHash($plainText, $salt = null)
 }
 
 //Checks if an email is valid
-function isValidEmail($email)
-{
+function isValidEmail($email){
 	if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 		return true;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
 
 //Inputs language strings from selected language.
-function lang($key,$markers = NULL)
-{
+function lang($key,$markers = NULL){
 	global $lang;
-	if($markers == NULL)
-	{
+	if($markers == NULL){
 		$str = $lang[$key];
-	}
-	else
-	{
+	} else {
 		//Replace any dyamic markers
 		$str = $lang[$key];
 		$iteration = 1;
-		foreach($markers as $marker)
-		{
+		foreach($markers as $marker){
 			$str = str_replace("%m".$iteration."%",$marker,$str);
 			$iteration++;
 		}
 	}
 	//Ensure we have something to return
-	if($str == "")
-	{
+	if($str == ""){
 		return ("No language key found");
-	}
-	else
-	{
+	} else {
 		return $str;
 	}
 }
 
 //Checks if a string is within a min and max length
-function minMaxRange($min, $max, $what)
-{
+function minMaxRange($min, $max, $what){
 	if(strlen(trim($what)) < $min)
 		return true;
 	else if(strlen(trim($what)) > $max)
 		return true;
-	else
-	return false;
+	else return false;
 }
 
 //Replaces hooks with specified text
-function replaceDefaultHook($str)
-{
+function replaceDefaultHook($str){
 	global $default_hooks,$default_replace;	
 	return (str_replace($default_hooks,$default_replace,$str));
 }
@@ -134,26 +109,20 @@ function replaceDefaultHook($str)
 //Displays error and success messages
 function resultBlock($errors,$successes){
 	//Error block
-	if(count($errors) > 0)
-	{
+	if(count($errors) > 0){
 		echo "<div id='error'>
-		<a href='#' onclick=\"showHide('error');\">[X]</a>
 		<ul>";
-		foreach($errors as $error)
-		{
+		foreach($errors as $error){
 			echo "<li>".$error."</li>";
 		}
 		echo "</ul>";
 		echo "</div>";
 	}
 	//Success block
-	if(count($successes) > 0)
-	{
+	if(count($successes) > 0){
 		echo "<div id='success'>
-		<a href='#' onclick=\"showHide('success');\">[X]</a>
 		<ul>";
-		foreach($successes as $success)
-		{
+		foreach($successes as $success){
 			echo "<li>".$success."</li>";
 		}
 		echo "</ul>";
@@ -162,8 +131,7 @@ function resultBlock($errors,$successes){
 }
 
 //Completely sanitizes text
-function sanitize($str)
-{
+function sanitize($str){
 	return strtolower(strip_tags(trim(($str))));
 }
 
@@ -191,8 +159,7 @@ function deleteUsers($users) {
 }
 
 //Check if a display name exists in the DB
-function displayNameExists($displayname)
-{
+function displayNameExists($displayname){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT active
 		FROM ".$db_table_prefix."users
@@ -205,19 +172,15 @@ function displayNameExists($displayname)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Check if an email exists in the DB
-function emailExists($email)
-{
+function emailExists($email){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT active
 		FROM ".$db_table_prefix."users
@@ -230,19 +193,15 @@ function emailExists($email)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Check if a user name and email belong to the same user
-function emailUsernameLinked($email,$username)
-{
+function emailUsernameLinked($email,$username){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT active
 		FROM ".$db_table_prefix."users
@@ -257,19 +216,15 @@ function emailUsernameLinked($email,$username)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Retrieve information for all users
-function fetchAllUsers()
-{
+function fetchAllUsers(){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -296,17 +251,14 @@ function fetchAllUsers()
 }
 
 //Retrieve complete user information by username, token or ID
-function fetchUserDetails($username=NULL,$token=NULL, $id=NULL)
-{
+function fetchUserDetails($username=NULL,$token=NULL, $id=NULL){
 	if($username!=NULL) {
 		$column = "user_name";
 		$data = $username;
-	}
-	elseif($token!=NULL) {
+	} elseif($token!=NULL) {
 		$column = "activation_token";
 		$data = $token;
-	}
-	elseif($id!=NULL) {
+	} elseif($id!=NULL) {
 		$column = "id";
 		$data = $id;
 	}
@@ -340,8 +292,7 @@ function fetchUserDetails($username=NULL,$token=NULL, $id=NULL)
 }
 
 //Toggle if lost password request flag on or off
-function flagLostPasswordRequest($username,$value)
-{
+function flagLostPasswordRequest($username,$value){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET lost_password_request = ?
@@ -356,8 +307,7 @@ function flagLostPasswordRequest($username,$value)
 }
 
 //Check if a user is logged in
-function isUserLoggedIn()
-{
+function isUserLoggedIn(){
 	global $loggedInUser,$mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -376,18 +326,12 @@ function isUserLoggedIn()
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if($loggedInUser == NULL)
-	{
+	if($loggedInUser == NULL){
 		return false;
-	}
-	else
-	{
-		if ($num_returns > 0)
-		{
+	} else {
+		if ($num_returns > 0) {
 			return true;
-		}
-		else
-		{
+		} else {
 			destroySession("userCakeUser");
 			return false;	
 		}
@@ -395,8 +339,7 @@ function isUserLoggedIn()
 }
 
 //Change a user from inactive to active
-function setUserActive($token)
-{
+function setUserActive($token){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET active = 1
@@ -410,8 +353,7 @@ function setUserActive($token)
 }
 
 //Change a user's display name
-function updateDisplayName($id, $display)
-{
+function updateDisplayName($id, $display){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET display_name = ?
@@ -425,8 +367,7 @@ function updateDisplayName($id, $display)
 }
 
 //Update a user's email
-function updateEmail($id, $email)
-{
+function updateEmail($id, $email){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET 
@@ -440,8 +381,7 @@ function updateEmail($id, $email)
 }
 
 //Input new activation token, and update the time of the most recent activation request
-function updateLastActivationRequest($new_activation_token,$username,$email)
-{
+function updateLastActivationRequest($new_activation_token,$username,$email){
 	global $mysqli,$db_table_prefix; 	
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET activation_token = ?,
@@ -456,8 +396,7 @@ function updateLastActivationRequest($new_activation_token,$username,$email)
 }
 
 //Generate a random password, and new token
-function updatePasswordFromToken($pass,$token)
-{
+function updatePasswordFromToken($pass,$token){
 	global $mysqli,$db_table_prefix;
 	$new_activation_token = generateActivationToken();
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
@@ -472,8 +411,7 @@ function updatePasswordFromToken($pass,$token)
 }
 
 //Update a user's title
-function updateTitle($id, $title)
-{
+function updateTitle($id, $title){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."users
 		SET 
@@ -487,8 +425,7 @@ function updateTitle($id, $title)
 }
 
 //Check if a user ID exists in the DB
-function userIdExists($id)
-{
+function userIdExists($id){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT active
 		FROM ".$db_table_prefix."users
@@ -501,19 +438,15 @@ function userIdExists($id)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Checks if a username exists in the DB
-function usernameExists($username)
-{
+function usernameExists($username){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT active
 		FROM ".$db_table_prefix."users
@@ -526,31 +459,24 @@ function usernameExists($username)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Check if activation token exists in DB
-function validateActivationToken($token,$lostpass=NULL)
-{
+function validateActivationToken($token,$lostpass=NULL){
 	global $mysqli,$db_table_prefix;
-	if($lostpass == NULL) 
-	{	
+	if($lostpass == NULL) {	
 		$stmt = $mysqli->prepare("SELECT active
 			FROM ".$db_table_prefix."users
 			WHERE active = 0
 			AND
 			activation_token = ?
 			LIMIT 1");
-	}
-	else 
-	{
+	}else {
 		$stmt = $mysqli->prepare("SELECT active
 			FROM ".$db_table_prefix."users
 			WHERE active = 1
@@ -566,12 +492,9 @@ function validateActivationToken($token,$lostpass=NULL)
 		$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
@@ -611,7 +534,7 @@ function deletePermission($permission) {
 		elseif ($id == 2){
 			$errors[] = lang("CANNOT_DELETE_ADMIN");
 		}
-		else{
+		else {
 			$stmt->bind_param("i", $id);
 			$stmt->execute();
 			$stmt2->bind_param("i", $id);
@@ -628,8 +551,7 @@ function deletePermission($permission) {
 }
 
 //Retrieve information for all permission levels
-function fetchAllPermissions()
-{
+function fetchAllPermissions(){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -645,8 +567,7 @@ function fetchAllPermissions()
 }
 
 //Retrieve information for a single permission level
-function fetchPermissionDetails($id)
-{
+function fetchPermissionDetails($id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -666,8 +587,7 @@ function fetchPermissionDetails($id)
 }
 
 //Check if a permission level ID exists in the DB
-function permissionIdExists($id)
-{
+function permissionIdExists($id){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT id
 		FROM ".$db_table_prefix."permissions
@@ -680,19 +600,15 @@ function permissionIdExists($id)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Check if a permission level name exists in the DB
-function permissionNameExists($permission)
-{
+function permissionNameExists($permission){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT id
 		FROM ".$db_table_prefix."permissions
@@ -705,19 +621,15 @@ function permissionNameExists($permission)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Change a permission level's name
-function updatePermissionName($id, $name)
-{
+function updatePermissionName($id, $name){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."permissions
 		SET name = ?
@@ -751,15 +663,13 @@ function addPermission($permission, $user) {
 			$stmt->execute();
 			$i++;
 		}
-	}
-	elseif (is_array($user)){
+	} elseif (is_array($user)){
 		foreach($user as $id){
 			$stmt->bind_param("ii", $permission, $id);
 			$stmt->execute();
 			$i++;
 		}
-	}
-	else {
+	} else {
 		$stmt->bind_param("ii", $permission, $user);
 		$stmt->execute();
 		$i++;
@@ -769,8 +679,7 @@ function addPermission($permission, $user) {
 }
 
 //Retrieve information for all user/permission level matches
-function fetchAllMatches()
-{
+function fetchAllMatches(){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -787,8 +696,7 @@ function fetchAllMatches()
 }
 
 //Retrieve list of permission levels a user has
-function fetchUserPermissions($user_id)
-{
+function fetchUserPermissions($user_id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT
 		id,
@@ -809,8 +717,7 @@ function fetchUserPermissions($user_id)
 }
 
 //Retrieve list of users who have a permission level
-function fetchPermissionUsers($permission_id)
-{
+function fetchPermissionUsers($permission_id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT id, user_id
 		FROM ".$db_table_prefix."user_permission_matches
@@ -841,15 +748,13 @@ function removePermission($permission, $user) {
 			$stmt->execute();
 			$i++;
 		}
-	}
-	elseif (is_array($user)){
+	} elseif (is_array($user)){
 		foreach($user as $id){
 			$stmt->bind_param("ii", $permission, $id);
 			$stmt->execute();
 			$i++;
 		}
-	}
-	else {
+	} else {
 		$stmt->bind_param("ii", $permission, $user);
 		$stmt->execute();
 		$i++;
@@ -862,8 +767,7 @@ function removePermission($permission, $user) {
 //------------------------------------------------------------------------------
 
 //Update configuration table
-function updateConfig($id, $value)
-{
+function updateConfig($id, $value){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."configuration
 		SET 
@@ -914,8 +818,7 @@ function deletePages($pages) {
 }
 
 //Fetch information on all pages
-function fetchAllPages()
-{
+function fetchAllPages(){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -934,8 +837,7 @@ function fetchAllPages()
 }
 
 //Fetch information for a specific page
-function fetchPageDetails($id)
-{
+function fetchPageDetails($id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT 
 		id,
@@ -956,8 +858,7 @@ function fetchPageDetails($id)
 }
 
 //Check if a page ID exists
-function pageIdExists($id)
-{
+function pageIdExists($id){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("SELECT private
 		FROM ".$db_table_prefix."pages
@@ -970,19 +871,15 @@ function pageIdExists($id)
 	$num_returns = $stmt->num_rows;
 	$stmt->close();
 	
-	if ($num_returns > 0)
-	{
+	if ($num_returns > 0){
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;	
 	}
 }
 
 //Toggle private/public setting of a page
-function updatePrivate($id, $private)
-{
+function updatePrivate($id, $private){
 	global $mysqli,$db_table_prefix;
 	$stmt = $mysqli->prepare("UPDATE ".$db_table_prefix."pages
 		SET 
@@ -1016,15 +913,13 @@ function addPage($page, $permission) {
 			$stmt->execute();
 			$i++;
 		}
-	}
-	elseif (is_array($page)){
+	} elseif (is_array($page)){
 		foreach($page as $id){
 			$stmt->bind_param("ii", $permission, $id);
 			$stmt->execute();
 			$i++;
 		}
-	}
-	else {
+	} else {
 		$stmt->bind_param("ii", $permission, $page);
 		$stmt->execute();
 		$i++;
@@ -1034,8 +929,7 @@ function addPage($page, $permission) {
 }
 
 //Retrieve list of permission levels that can access a page
-function fetchPagePermissions($page_id)
-{
+function fetchPagePermissions($page_id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT
 		id,
@@ -1056,8 +950,7 @@ function fetchPagePermissions($page_id)
 }
 
 //Retrieve list of pages that a permission level can access
-function fetchPermissionPages($permission_id)
-{
+function fetchPermissionPages($permission_id){
 	global $mysqli,$db_table_prefix; 
 	$stmt = $mysqli->prepare("SELECT
 		id,
@@ -1090,15 +983,13 @@ function removePage($page, $permission) {
 			$stmt->execute();
 			$i++;
 		}
-	}
-	elseif (is_array($permission)){
+	} elseif (is_array($permission)){
 		foreach($permission as $id){
 			$stmt->bind_param("ii", $page, $id);
 			$stmt->execute();
 			$i++;
 		}
-	}
-	else {
+	} else {
 		$stmt->bind_param("ii", $permission, $user);
 		$stmt->execute();
 		$i++;
@@ -1109,7 +1000,6 @@ function removePage($page, $permission) {
 
 //Check if a user has access to a page
 function securePage($uri){
-	
 	//Separate document name from uri
 	$tokens = explode('/', $uri);
 	$page = $tokens[sizeof($tokens)-1];
@@ -1133,18 +1023,12 @@ function securePage($uri){
 	//If page does not exist in DB, allow access
 	if (empty($pageDetails)){
 		return true;
-	}
-	//If page is public, allow access
-	elseif ($pageDetails['private'] == 0) {
+	} elseif ($pageDetails['private'] == 0) { //If page is public, allow access
 		return true;	
-	}
-	//If user is not logged in, deny access
-	elseif(!isUserLoggedIn()) 
-	{
+	} elseif(!isUserLoggedIn()) { //If user is not logged in, deny access
 		header("Location: login.php");
 		return false;
-	}
-	else {
+	} else {
 		//Retrieve list of permission levels with access to page
 		$stmt = $mysqli->prepare("SELECT
 			permission_id
@@ -1161,12 +1045,9 @@ function securePage($uri){
 		//Check if user's permission levels allow access to page
 		if ($loggedInUser->checkPermission($pagePermissions)){ 
 			return true;
-		}
-		//Grant access if master user
-		elseif ($loggedInUser->user_id == $master_account){
+		} elseif ($loggedInUser->user_id == $master_account){//Grant access if master user
 			return true;
-		}
-		else {
+		} else {
 			header("Location: account.php");
 			return false;	
 		}

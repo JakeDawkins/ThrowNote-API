@@ -1,5 +1,4 @@
 <?php
-
 //for cleaning and validating form inputs.
 function test_input($data) {
 	$data = trim($data);
@@ -7,6 +6,4 @@ function test_input($data) {
 	$data = htmlspecialchars($data);
 	return $data;
 }
-
-
 ?>

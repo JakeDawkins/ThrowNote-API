@@ -48,8 +48,6 @@ $dbpages = fetchAllPages();
 <head>
 	<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 	<title>ThrowNote</title>
-	<script src='models/funcs.js' type='text/javascript'>
-	</script>
 </head>
 
 <body>
