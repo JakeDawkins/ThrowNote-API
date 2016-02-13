@@ -1,66 +1,58 @@
 <?php
-require("models/Path.php");
-require(Path::models() . "config.php");
-
 /*
-*	STEPS
-*	1. check for new notes
-*	2. load old notes
-*/ 
+UserCake Version: 2.0.2
+http://usercake.com
+*/
 
-
-//------------------------ check for new notes ------------------------
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-	$text = null;
-
-	//test and set input values
-	if(isset($_POST['text'])){
-		$text = test_input($_POST['text']);
-	}
-
-	if(!empty($text)){
-		$note = new Note();
-		$note->setText($text);
-		$note->prepareAndSaveNote();	
-		echo "Note saved! <br />ID: " . $note->getID();
-	} else {
-		echo "Note not saved! No input<br />";
-	}
-}
-
-//------------------------ load old notes ------------------------
-$notes = Note::fetchByUser(1);
+require_once("models/config-uc.php");
+if (!securePage($_SERVER['PHP_SELF'])){die();}
 
 ?>
 
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 	<title>ThrowNote</title>
+	<script src='models/funcs.js' type='text/javascript'>
+	</script>
 </head>
 <body>
-
-	<form role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
-		<textarea rows="4" cols="60" name="text"></textarea>
-		<input type="submit" name="submit" value="Submit" />
-	</form>
-
-	<hr />
-	<h1>Notes</h1>
-
-	<!-- Print out all notes -->
-	<?php
-		if(is_array($notes)){
-			foreach($notes as $note){
-				$note->linkifyFromText();
-				echo "<p>" . 
-				"ID: " . $note->getID() . "<br />" . 
-				"TEXT: " . $note->getText() . "<br />";
-				"</p>";
-			}
-		}
-			 
-	?>
-
+	<div id='wrapper'>
+		<div id='top'><div id='logo'></div></div>
+		<div id='content'>
+			<h1>UserCake</h1>
+			<h2>2.00</h2>
+			<div id='left-nav'>
+				<?php include("left-nav.php"); ?>
+			</div>
+			<div id='main'>
+				<p>Thank you for downloading UserCake. 100% Free and Opensource.</p>
+				<p>Copyright (c) 2009-2012</p>
+				<p>
+					Permission is hereby granted, free of charge, to any person obtaining a copy
+					of this software and associated documentation files (the 'Software'), to deal
+					in the Software without restriction, including without limitation the rights
+					to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+					copies of the Software, and to permit persons to whom the Software is
+					furnished to do so, subject to the following conditions:
+				</p>
+				<p>
+					The above copyright notice and this permission notice shall be included in
+					all copies or substantial portions of the Software.
+				</p>
+				<p>
+					THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+					IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+					FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+					AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+					LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+					OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+					THE SOFTWARE.
+				</p>
+			</div><!-- end main -->
+		</div><!-- end content -->
+		<div id='bottom'></div>
+	</div><!-- end wrapper -->
 </body>
 </html>

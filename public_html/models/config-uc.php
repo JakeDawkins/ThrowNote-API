@@ -6,8 +6,7 @@ http://usercake.com
 require_once("db-settings.php"); //Require DB connection
 
 //Retrieve settings
-$stmt = $mysqli->prepare("SELECT id, name, value
-	FROM ".$db_table_prefix."configuration");	
+$stmt = $mysqli->prepare("SELECT id, name, value FROM ".$db_table_prefix."configuration");	
 $stmt->execute();
 $stmt->bind_result($id, $name, $value);
 
@@ -42,14 +41,13 @@ require_once($language);
 require_once("class.mail.php");
 require_once("class.user.php");
 require_once("class.newuser.php");
-require_once("funcs.php");
+require_once("funcs-uc.php");
 
 session_start();
 
 //Global User Object Var
 //loggedInUser can be used globally if constructed
-if(isset($_SESSION["userCakeUser"]) && is_object($_SESSION["userCakeUser"]))
-{
+if(isset($_SESSION["userCakeUser"]) && is_object($_SESSION["userCakeUser"])){
 	$loggedInUser = $_SESSION["userCakeUser"];
 }
 
