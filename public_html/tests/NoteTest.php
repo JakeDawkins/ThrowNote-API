@@ -1,6 +1,5 @@
 <?php
-include("../models/Path.php");
-include(Path::models() . 'config.php');
+include(dirname(dirname(__FILE__)) . '/models/config.php');
 include(Path::tests() . 'install.php');
 
 class NoteTest extends PHPUnit_Framework_TestCase {

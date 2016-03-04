@@ -21,25 +21,30 @@ class ThrowNoteAPI extends API
 
     //handler for API call to the notes collection
     private function notesCollection(){
-        if($this->method == 'GET'){
-            return "NOTES COLLECTION (GET)";
-        } else if($this->method == 'PUT'){
-            return "NOTES COLLECTION (PUT)";
-        } else if ($this->method == 'DELETE'){
-            return "NOTES COLLECTION (DELETE)";
-        } else return "endpoint does not recognize " . $this->method . " requests";
+        switch($this->method){
+            case 'POST':
+                return "NOTES COLLECTION (POST)";
+            default:
+                return "endpoint does not recognize " . $this->method . " requests";
+        }
     }
 
     //handler for API call to a single note
     private function singleNote(){
-        if($this->method == 'GET'){
-            return "SINGLE NOTE (GET)";
-        } else if($this->method == 'PUT'){
-            return "SINGLE NOTE (PUT)";
-        } else if ($this->method == 'DELETE'){
-            return "SINGLE NOTE (DELETE)";
+        switch($this->method){
+            case 'GET':
+                return "SINGLE NOTE (GET)";
+            case 'POST':
+                return "SINGLE NOTE (POST)";
+            case 'DELETE':
+                return "SINGLE NOTE (DELETE)";
+            default:
+                return "endpoint does not recognize " . $this->method . " requests";
         }
     }
+
+    //---------------- NOTES ENDPOINT METHODS ----------------
+
 
     //------------------------ USER ENDPOINT ------------------------
 

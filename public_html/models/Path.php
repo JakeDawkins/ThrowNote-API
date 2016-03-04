@@ -42,7 +42,7 @@ if(!class_exists('Path')){
 		}
 
 		static public function dbSettings() {
-			return '/Users/Jake/Sites/ThrowNote/db-settings.php';
+			return dirname(dirname(Path::base())) . '/db-settings.php';
 		}
 	}
 }

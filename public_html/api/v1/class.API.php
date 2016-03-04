@@ -84,7 +84,11 @@ abstract class API
     //run the request through the endpoint
     public function processAPI() {
         if (method_exists($this, $this->endpoint)) {
-            return $this->_response($this->{$this->endpoint}($this->args));
+            $finalArr = array();
+            $finalArr["data"] = $this->{$this->endpoint}($this->args);
+            $finalArr["success"] = "true";
+
+            return $this->_response($finalArr);
         }
         return $this->_response("No Endpoint: $this->endpoint", 404);
     }
@@ -111,6 +115,10 @@ abstract class API
     private function _requestStatus($code) {
         $status = array(  
             200 => 'OK',
+            304 => 'Not Modified',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            403 => 'Forbidden',
             404 => 'Not Found',   
             405 => 'Method Not Allowed',
             500 => 'Internal Server Error',
