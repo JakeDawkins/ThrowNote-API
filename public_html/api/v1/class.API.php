@@ -21,7 +21,7 @@ abstract class API
      * An optional additional descriptor about the endpoint, used for things that can
      * not be handled by the basic methods. eg: /files/process
      */
-    protected $verb = '';
+    //protected $verb = '';
     
     /**
      * Property: args
@@ -48,9 +48,9 @@ abstract class API
 
         $this->args = explode('/', rtrim($request, '/'));
         $this->endpoint = array_shift($this->args);
-        if (array_key_exists(0, $this->args) && !is_numeric($this->args[0])) {
+        /*if (array_key_exists(0, $this->args) && !is_numeric($this->args[0])) {
             $this->verb = array_shift($this->args);
-        }
+        }*/
 
         $this->method = $_SERVER['REQUEST_METHOD'];
         if ($this->method == 'POST' && array_key_exists('HTTP_X_HTTP_METHOD', $_SERVER)) {

@@ -1,4 +1,7 @@
 <?php
+//include the config
+include_once dirname(dirname(dirname(__FILE__))) . '/models/config.php';
+
 require_once 'class.ThrowNoteAPI.php';
 
 // Requests from the same server don't have a HTTP_ORIGIN header
