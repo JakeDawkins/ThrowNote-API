@@ -1,5 +1,6 @@
 <?php
 require_once 'class.API.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/models/config.php';
 
 class ThrowNoteAPI extends API
 {
@@ -23,7 +24,11 @@ class ThrowNoteAPI extends API
     private function notesCollection(){
         switch($this->method){
             case 'POST':
-                return "NOTES COLLECTION (POST)";
+                //NEW NOTE (or updated if ID given)
+                //make sure user gave enough info for note
+                if(!$this->requestFieldsSubmitted(["text","created"]))
+                    return "error: missing note information";
+                return $this->newNote();
             default:
                 return "endpoint does not recognize " . $this->method . " requests";
         }
@@ -33,7 +38,7 @@ class ThrowNoteAPI extends API
     private function singleNote(){
         switch($this->method){
             case 'GET':
-                return "SINGLE NOTE (GET)";
+                return $this->getNote();
             case 'POST':
                 return "SINGLE NOTE (POST)";
             case 'DELETE':
@@ -44,7 +49,38 @@ class ThrowNoteAPI extends API
     }
 
     //---------------- NOTES ENDPOINT METHODS ----------------
+    private function newNote(){
+        $note = new Note();
 
+        //required
+        $note->setText($this->request['text']);
+        $note->setCreated($this->request['created']);
+        
+        //optional
+        if(isset($this->request['id']) && !empty($this->request['id'])) 
+            $note->setID($this->request['id']);
+        if(isset($this->request['updated']) && !empty($this->request['updated'])) 
+            $note->setUpdated($this->request['updated']);
+
+        $note->save();
+        return $note->toArray();
+    }
+
+    //---------------- NOTE ENDPOINT METHODS ----------------
+    public function getNote(){
+        if(is_numeric($this->args[0])){
+            $id = $this->args[0];
+            $note = new Note();
+            $note->fetch($id);
+            if(empty($note->getText())){
+                 return "error: note lookup failed (may not exist)";   
+            }
+            return $note->toArray();
+        } else {
+            return "error: note id is not an int";
+        }
+
+    }
 
     //------------------------ USER ENDPOINT ------------------------
 

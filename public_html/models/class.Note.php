@@ -50,6 +50,15 @@ class Note {
 		return $ret;
 	}
 
+	function toArray(){
+		return array(
+			'id' => $this->id,
+			'text' => $this->text,
+			'created' => $this->created,
+			'updated' => $this->updated
+			);
+	}
+
 	//------------------------ SETTERS ------------------------
 	public function setID($id){
 		$this->id = $id;
@@ -187,8 +196,10 @@ class Note {
 	function addNewNote(){
 		$db = new Database();
 
-		$now = date("Y-m-d H:i:s");
-		$this->setCreated($now);
+		if(!isset($this->created)){
+			$now = date("Y-m-d H:i:s");
+			$this->setCreated($now);	
+		}
 
 		$sql = "INSERT INTO `notes`(`text`, `created`, `owner`) VALUES (?, ?, ?)"; 
 		$sql = $db->prepareQuery($sql, $this->text, $this->created, 1);
@@ -208,9 +219,11 @@ class Note {
 	function updateNote(){
 		$db = new Database();
 
-		$now = date("Y-m-d H:i:s");
-		$this->setUpdated($now);
-
+		if(!isset($this->updated)){
+			$now = date("Y-m-d H:i:s");
+			$this->setUpdated($now);
+		}
+		
 		$sql = "UPDATE `notes` SET `text`=?, `updated`=? WHERE `id`=?";
 		$sql = $db->prepareQuery($sql, $this->text, $this->updated, $this->id);
 
