@@ -286,6 +286,20 @@ class Note {
 		}//if
 	}//addDBTags
 
+	/*
+	*	Deletes the current note from DB
+	* 	@ret bool | true if successful, false otherwise
+	*/
+	function delete(){
+		if(isset($this->id)){
+			$db = new Database();
+			$sql = "DELETE FROM notes WHERE id=?";
+			$sql = $db->prepareQuery($sql, $this->id);
+			$db->query($sql);
+			return true;
+		} else return false;	
+	}
+
 	//------------------------ HELPER METHODS ------------------------
 
 	/*

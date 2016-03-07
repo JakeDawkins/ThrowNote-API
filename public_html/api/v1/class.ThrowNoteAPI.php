@@ -40,9 +40,12 @@ class ThrowNoteAPI extends API
             case 'GET':
                 return $this->getNote();
             case 'POST':
-                return "SINGLE NOTE (POST)";
+                //make sure user gave enough info for note
+                if(!$this->requestFieldsSubmitted(["text","updated"]))
+                    return "error: missing note information";
+                return $this->updateNote();
             case 'DELETE':
-                return "SINGLE NOTE (DELETE)";
+                return $this->deleteNote();
             default:
                 return "endpoint does not recognize " . $this->method . " requests";
         }
@@ -79,7 +82,43 @@ class ThrowNoteAPI extends API
         } else {
             return "error: note id is not an int";
         }
+    }
 
+    public function updateNote(){
+        if(is_numeric($this->args[0])){
+            $id = $this->args[0];
+            $note = new Note();
+            $note->fetch($id);
+            if(empty($note->getText())){
+                 return "error: note lookup failed (may not exist)";   
+            }
+            $note->setText($this->request['text']);
+            $note->setUpdated($this->request['updated']);
+            $note->save();
+
+            return $note->toArray();
+        } else {
+            return "error: note id is not an int";
+        }
+    }
+
+    public function deleteNote(){
+        if(is_numeric($this->args[0])){
+            $id = $this->args[0];
+            $note = new Note();
+            $note->fetch($id);
+            if(empty($note->getText())){
+                 return "error: note lookup failed (may not exist)";   
+            }
+
+            if($note->delete() == true){
+                return "note deleted successfully";    
+            } else {
+                return "error: issue deleting note";
+            }
+        } else {
+            return "error: note id is not an int";
+        }
     }
 
     //------------------------ USER ENDPOINT ------------------------
