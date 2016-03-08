@@ -135,7 +135,7 @@ class Note {
 	static function fetchByUser($id){
 		$db = new Database();
 		$sql = "SELECT `id` FROM `notes` WHERE `owner`=?";
-		$sql = $db->prepareQuery($sql, 1); //TODO -- fix for any user
+		$sql = $db->prepareQuery($sql, $id);
 
 		$results = $db->select($sql);
 		if(is_array($results)){

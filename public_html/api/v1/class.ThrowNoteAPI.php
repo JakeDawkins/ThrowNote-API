@@ -14,6 +14,9 @@ class ThrowNoteAPI extends API
         if(!is_array($this->args) || count($this->args) == 0){
             return $this->notesCollection();
         } else if(count($this->args) == 1){ //URI: /api/v1/notes/<ID>
+            if(!is_numeric($this->args[0])){
+                return "error: note id not numeric";  
+            } 
             return $this->singleNote();
         } else {
             return "IMPROPER API CALL";
@@ -26,7 +29,7 @@ class ThrowNoteAPI extends API
             case 'POST':
                 //NEW NOTE (or updated if ID given)
                 //make sure user gave enough info for note
-                if(!$this->requestFieldsSubmitted(["text","created"]))
+                if(!$this->requestFieldsSubmitted(["text","created","owner"]))
                     return "error: missing note information";
                 return $this->newNote();
             default:
@@ -41,7 +44,7 @@ class ThrowNoteAPI extends API
                 return $this->getNote();
             case 'POST':
                 //make sure user gave enough info for note
-                if(!$this->requestFieldsSubmitted(["text","updated"]))
+                if(!$this->requestFieldsSubmitted(["text","updated","owner"]))
                     return "error: missing note information";
                 return $this->updateNote();
             case 'DELETE':
@@ -51,7 +54,7 @@ class ThrowNoteAPI extends API
         }
     }
 
-    //------------------------ USER ENDPOINT ------------------------
+    //------------------------ USERS ENDPOINT ------------------------
     protected function users(){
         //URI: /api/v1/users
         if(!is_array($this->args) || count($this->args) == 0){
@@ -74,6 +77,7 @@ class ThrowNoteAPI extends API
         //required
         $note->setText($this->request['text']);
         $note->setCreated($this->request['created']);
+        $note->setOwner($this->request['owner']);
         
         //optional
         if(isset($this->request['id']) && !empty($this->request['id'])) 
@@ -107,6 +111,9 @@ class ThrowNoteAPI extends API
             $note->fetch($id);
             if(empty($note->getText())){
                  return "error: note lookup failed (may not exist)";   
+            }
+            if($note->getOwner() != $this->request['owner']){
+                return "error: note and request owner mismatch";
             }
             $note->setText($this->request['text']);
             $note->setUpdated($this->request['updated']);
@@ -143,14 +150,23 @@ class ThrowNoteAPI extends API
     //args[0] = userid
     public function usersNotes(){
         switch ($this->method) {
-            case 'value':
-                # code...
-                break;
-            
+            case 'GET':
+                return $this->usersNotesGet();
             default:
-                # code...
-                break;
+                return "endpoint does not recognize " . $this->method . " requests";
         }
+    }
+
+    //get an array of notes(array form) authored by a user
+    public function usersNotesGet(){
+        $notes = Note::fetchByUser($this->args[0]);
+        $notesArray = array();
+        if(is_array($notes)){
+            foreach($notes as $note){
+                $notesArray[] = $note->toArray();
+            }    
+        }
+        return $notesArray;
     }
 
 
