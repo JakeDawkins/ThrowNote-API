@@ -51,6 +51,22 @@ class ThrowNoteAPI extends API
         }
     }
 
+    //------------------------ USER ENDPOINT ------------------------
+    protected function users(){
+        //URI: /api/v1/users
+        if(!is_array($this->args) || count($this->args) == 0){
+            return "error: no active endpoint methods with 0 arguments";
+        } else if(count($this->args) == 2){ //URI: /api/v1/users/<ARG>/<ARG>
+            if(is_numeric($this->args[0]) && $this->args[1] == 'notes'){
+                //URI: /api/v1/users/<ID>/notes
+                return $this->usersNotes();
+            } else return "error: unknown API call to users endpoint";
+            return $this->singleNote();
+        } else {
+            return "IMPROPER API CALL";
+        }
+    }
+
     //---------------- NOTES ENDPOINT METHODS ----------------
     private function newNote(){
         $note = new Note();
@@ -121,7 +137,21 @@ class ThrowNoteAPI extends API
         }
     }
 
-    //------------------------ USER ENDPOINT ------------------------
+    //------------------------ USERS ENDPOINT METHODS ------------------------
+
+    //actions on the collection of notes of a single user
+    //args[0] = userid
+    public function usersNotes(){
+        switch ($this->method) {
+            case 'value':
+                # code...
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+    }
 
 
     //------------------------ HELPER METHODS ------------------------
