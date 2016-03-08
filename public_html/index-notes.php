@@ -21,6 +21,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	if(!empty($text)){
 		$note = new Note();
 		$note->setText($text);
+		$note->setOwner(1);
 		$note->prepareAndSaveNote();	
 		echo "Note saved! <br />ID: " . $note->getID();
 	} else {

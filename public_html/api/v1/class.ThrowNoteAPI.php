@@ -85,7 +85,7 @@ class ThrowNoteAPI extends API
         if(isset($this->request['updated']) && !empty($this->request['updated'])) 
             $note->setUpdated($this->request['updated']);
 
-        $note->save();
+        $note->prepareAndSaveNote();
         return $note->toArray();
     }
 
@@ -117,7 +117,7 @@ class ThrowNoteAPI extends API
             }
             $note->setText($this->request['text']);
             $note->setUpdated($this->request['updated']);
-            $note->save();
+            $note->prepareAndSaveNote();
 
             return $note->toArray();
         } else {
