@@ -31,13 +31,13 @@ $default_hooks = array("#WEBSITENAME#","#WEBSITEURL#","#DATE#");
 $default_replace = array($websiteName,$websiteUrl,$emailDate);
 
 if (!file_exists($language)) {
-	$language = "models/languages/en.php";
+	$language = "/languages/en.php";
 }
 
 if(!isset($language)) $language = "models/languages/en.php";
 
 //Pages to require
-require_once($language);
+require_once(dirname(__FILE__) . $language);
 require_once("class.mail.php");
 require_once("class.user.php");
 require_once("class.newuser.php");
