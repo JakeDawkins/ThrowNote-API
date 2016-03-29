@@ -3,6 +3,22 @@ require_once 'class.API.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/models/config.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 
+/*
+*   ---- INDEX ----
+*   1. Notes Endpoint
+*       1.0 Notes Collection        (/notes)
+*           1.0.0 New Note          (POST:      /notes)
+*       1.1 Single Note             (/notes/id)
+*           1.1.0 Get Note          (GET:       /notes/id)
+*           1.1.1 Update Note       (POST:      /notes/id)
+*           1.1.2 Delete Note       (DELETE:    /notes/id)
+*    2. Users Endpoint              (/users)
+*       2.0 Users Name              (/users/USERNAME)
+            2.0.0 Users Name Auth   (POST:      /users/USERNAME)
+*       2.1 Users Notes             (/users/USERID/notes)
+*           2.1.0 Users Notes Get   (GET:       /users/USERID/notes)
+*/
+
 class ThrowNoteAPI extends API
 {
     public function __construct($request, $origin) {
@@ -60,7 +76,7 @@ class ThrowNoteAPI extends API
         }
     }
 
-        //---------------- NOTES ENDPOINT METHODS ----------------
+    //---------------- NOTES ENDPOINT METHODS ----------------
     private function newNote(){
         $note = new Note();
 
@@ -153,7 +169,6 @@ class ThrowNoteAPI extends API
                 //URI: /api/v1/users/<ID>/notes
                 return $this->usersNotes();
             } else return "error: unknown API call to users endpoint";
-            return $this->singleNote();
         } else {
             return "IMPROPER API CALL";
         }
@@ -248,7 +263,6 @@ class ThrowNoteAPI extends API
             }
         }//end else
     }
-
 
     /*------------------------  ------------------------
     *
