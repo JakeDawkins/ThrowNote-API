@@ -33,7 +33,7 @@ class ThrowNoteAPI extends API
     *
     ------------------------  ------------------------*/
 
-    //1.
+    //1
     protected function notes(){
         //URI: /api/v1/notes
         if(!is_array($this->args) || count($this->args) == 0){
