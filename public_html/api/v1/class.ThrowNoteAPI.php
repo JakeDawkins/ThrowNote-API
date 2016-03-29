@@ -12,11 +12,14 @@ require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 *           1.1.0 Get Note          (GET:       /notes/id)
 *           1.1.1 Update Note       (POST:      /notes/id)
 *           1.1.2 Delete Note       (DELETE:    /notes/id)
-*    2. Users Endpoint              (/users)
-*       2.0 Users Name              (/users/USERNAME)
-            2.0.0 Users Name Auth   (POST:      /users/USERNAME)
-*       2.1 Users Notes             (/users/USERID/notes)
-*           2.1.0 Users Notes Get   (GET:       /users/USERID/notes)
+*   2. Users Endpoint              (/users)
+*       2.0 Users Notes             (/users/USERID/notes)
+*           2.0.0 Users Notes Get   (GET:       /users/USERID/notes)
+*       2.1 Users Name              (/users/USERNAME)
+*           2.1.0 Users Name Auth   (POST:      /users/USERNAME)
+*   3. Helpers
+*       3.0 RequestFieldsSubmitted
+*
 */
 
 class ThrowNoteAPI extends API
@@ -31,6 +34,7 @@ class ThrowNoteAPI extends API
     *
     ------------------------  ------------------------*/
 
+    //1
     protected function notes(){
         //URI: /api/v1/notes
         if(!is_array($this->args) || count($this->args) == 0){
@@ -45,7 +49,7 @@ class ThrowNoteAPI extends API
         }
     }
 
-    //handler for API call to the notes collection
+    //1.0 handler for API call to the notes collection
     private function notesCollection(){
         switch($this->method){
             case 'POST':
@@ -59,7 +63,7 @@ class ThrowNoteAPI extends API
         }
     }
 
-    //handler for API call to a single note
+    //1.1 handler for API call to a single note
     private function singleNote(){
         switch($this->method){
             case 'GET':
@@ -77,6 +81,7 @@ class ThrowNoteAPI extends API
     }
 
     //---------------- NOTES ENDPOINT METHODS ----------------
+    //1.0.0
     private function newNote(){
         $note = new Note();
 
@@ -96,6 +101,7 @@ class ThrowNoteAPI extends API
     }
 
     //---------------- NOTE ENDPOINT METHODS ----------------
+    //1.1.0
     public function getNote(){
         if(is_numeric($this->args[0])){
             $id = $this->args[0];
@@ -110,6 +116,7 @@ class ThrowNoteAPI extends API
         }
     }
 
+    //1.1.1
     public function updateNote(){
         if(is_numeric($this->args[0])){
             $id = $this->args[0];
@@ -131,6 +138,7 @@ class ThrowNoteAPI extends API
         }
     }
 
+    //1.1.2
     public function deleteNote(){
         if(is_numeric($this->args[0])){
             $id = $this->args[0];
@@ -156,6 +164,7 @@ class ThrowNoteAPI extends API
     *
     ------------------------  ------------------------*/
 
+    //2.
     protected function users(){
         //URI: /api/v1/users
         if(!is_array($this->args) || count($this->args) == 0){
@@ -176,7 +185,7 @@ class ThrowNoteAPI extends API
 
     //------------------------ USERS ENDPOINT METHODS ------------------------
 
-    //actions on the collection of notes of a single user
+    //2.0 actions on the collection of notes of a single user
     //args[0] = userid
     public function usersNotes(){
         switch ($this->method) {
@@ -187,7 +196,7 @@ class ThrowNoteAPI extends API
         }
     }
 
-    //get an array of notes(array form) authored by a user
+    //2.0.0 get an array of notes(array form) authored by a user
     public function usersNotesGet(){
         $notes = Note::fetchByUser($this->args[0]);
         $notesArray = array();
@@ -199,7 +208,7 @@ class ThrowNoteAPI extends API
         return $notesArray;
     }
 
-    //handles a single user by username
+    //2.1 handles a single user by username
     public function usersName(){
         switch($this->method){
             case 'POST':
@@ -212,6 +221,7 @@ class ThrowNoteAPI extends API
         }
     }
 
+    //2.1.0
     public function usersNameAuth(){
         $username = $this->request['username'];
         $password = $this->request['password'];
@@ -266,11 +276,11 @@ class ThrowNoteAPI extends API
 
     /*------------------------  ------------------------
     *
-    *               HELPER METHODS
+    *               3. HELPER METHODS
     *
     ------------------------  ------------------------*/
 
-    //checks if all necessary variables are set
+    //3.0 checks if all necessary variables are set
     //$vars is an array
     private function requestFieldsSubmitted($vars){
         if(is_array($vars)){
