@@ -19,7 +19,6 @@ require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 *           2.1.0 Users Name Auth   (POST:      /users/USERNAME)
 *   3. Helpers
 *       3.0 RequestFieldsSubmitted
-*
 */
 
 class ThrowNoteAPI extends API
