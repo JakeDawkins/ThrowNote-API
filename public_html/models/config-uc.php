@@ -34,7 +34,7 @@ if (!file_exists($language)) {
 	$language = "/languages/en.php";
 }
 
-if(!isset($language)) $language = "models/languages/en.php";
+if(!isset($language)) $language = "/languages/en.php";
 
 //Pages to require
 require_once(dirname(__FILE__) . $language);
