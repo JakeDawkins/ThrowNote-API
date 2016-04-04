@@ -146,5 +146,22 @@ class Attachment {
 		$db->query($sql);
 	}
 
+	//gets an array of attachment objects associated with a note id
+	public static function getAttachmentsForNote($noteID){
+		$atts = array();
+		$db = new Database();
+		$sql = 'SELECT `id` FROM `attachments` WHERE `note_id`=?';
+		$sql = $db->prepareQuery($sql, $noteID);
+		$results = $db->select($sql);
+		if(is_array($results)){
+			foreach($results as $result){
+				$newAtt = new Attachment();
+				$newAtt->fetch($result['id']);
+				$atts[] = $newAtt;
+			}
+		}
+		return $atts;
+	}
+
 }
 ?>

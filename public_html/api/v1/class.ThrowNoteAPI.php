@@ -104,7 +104,26 @@ class ThrowNoteAPI extends API
     }
 
     private function noteFileGet(){
-        return 'get';
+        $noteID = $this->args[0];
+        $atts = Attachment::getAttachmentsForNote($noteID);
+
+        if(!is_array($atts) || count($atts) == 0){
+            $this->response['message'] = 'error: no attachments for this note';
+            $this->response['code'] = 400;
+        }
+
+        //echo image to browser/client
+        //TODO -- increase from 1 attachment
+        $img = file_get_contents($atts[0]->getPath());
+        if($img == false){ //make sure photo loaded
+            $this->response['message'] = 'error: broken path';
+            $this->response['code'] = 500;
+        }
+        
+        //change for different types
+        header('content-type: image/png');
+        header("HTTP/1.1 200 OK");
+        echo $img;
     }
 
     private function noteFileDelete(){
