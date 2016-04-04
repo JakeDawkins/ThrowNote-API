@@ -44,6 +44,10 @@ if(!class_exists('Path')){
 		static public function dbSettings() {
 			return dirname(dirname(Path::base())) . '/db-settings.php';
 		}
+
+		static public function uploads(){
+			return Path::base() . 'uploads/';
+		}
 	}
 }
 	

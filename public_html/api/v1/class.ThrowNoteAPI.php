@@ -13,7 +13,11 @@ require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 *           1.1.0 Get Note          (GET:       /notes/id)
 *           1.1.1 Update Note       (POST:      /notes/id)
 *           1.1.2 Delete Note       (DELETE:    /notes/id)
-*   2. Users Endpoint              (/users)
+*           1.1.3 Note attachment   (/notes/id/file)
+*               1.1.3.0 Add/update  (POST: /notes/id/file)
+*               1.1.3.1 get         (GET: /notes/id/file)
+*               1.1.3.2 delete file (DELETE: /notes/id/file)
+*   2. Users Endpoint               (/users)
 *       2.0 Users Notes             (/users/USERID/notes)
 *           2.0.0 Users Notes Get   (GET:       /users/USERID/notes)
 *       2.1 Users Name              (/users/USERNAME)
@@ -30,16 +34,16 @@ class ThrowNoteAPI extends API
 
     /*------------------------  ------------------------
     *
-    *               NOTES ENDPOINT
+    *                   NOTES ENDPOINT
     *
-    ------------------------  ------------------------*/
+    *------------------------  ------------------------*/
 
     //1
     protected function notes(){
         //URI: /api/v1/notes
         if(!is_array($this->args) || count($this->args) == 0){
             return $this->notesCollection();
-        } else if(count($this->args) == 1){ //URI: /api/v1/notes/<ID>
+        } else if(count($this->args) >= 1){ //URI: /api/v1/notes/<ID>/...
             if(!is_numeric($this->args[0])){
                 return "error: note id not numeric";  
             } 
@@ -65,19 +69,109 @@ class ThrowNoteAPI extends API
 
     //1.1 handler for API call to a single note
     private function singleNote(){
-        switch($this->method){
-            case 'GET':
-                return $this->getNote();
-            case 'POST':
-                //make sure user gave enough info for note
-                if(!$this->requestFieldsSubmitted(["text","updated","owner"]))
-                    return "error: missing note information";
-                return $this->updateNote();
-            case 'DELETE':
-                return $this->deleteNote();
-            default:
-                return "endpoint does not recognize " . $this->method . " requests";
+        if(count($this->args) == 1){ 
+            //URL: /api/v1/notes/id
+            //note content
+            switch($this->method){
+                case 'GET':
+                    return $this->getNote();
+                case 'POST':
+                    //make sure user gave enough info for note
+                    if(!$this->requestFieldsSubmitted(["text","updated","owner"]))
+                        return "error: missing note information";
+                    return $this->updateNote();
+                case 'DELETE':
+                    return $this->deleteNote();
+                default:
+                    return "endpoint does not recognize " . $this->method . " requests";
+            }            
+        } else if(count($this->args) == 2 && $this->args[1] == 'file') {
+            //URI: /api/v1/notes/id/file
+            //note file handler
+            switch($this->method){
+                case 'GET':
+                    return $this->noteFileGet();
+                case 'POST':
+                    return $this->noteFilePost();
+                case 'DELETE':
+                    return $this->noteFileDelete();
+                default:
+                    return "endpoint does not recognize " . $this->method . " requests";
+            }            
+        } else {
+            //$this->reponse; 
         }
+    }
+
+    private function noteFileGet(){
+        return 'get';
+    }
+
+    private function noteFileDelete(){
+        return 'delete';
+    }
+
+    private function noteFilePost(){
+        //print_r($this->files);
+        if(!$this->validatePhoto()) return 'error: photo upload failed'; 
+        $note = new Note();
+
+        //fetch and check for valid note
+        $note->fetch($this->args[0]);
+        if($note->getID() == null){
+            $this->response['message'] = 'error: failed to load note with id ' . $this->args[0];
+            $this->response['code'] = 405;
+        }
+
+        //report id
+        $noteID = $this->args[0];
+
+        $photo = $this->files['photo'];
+        $upload_dir = Path::uploads() . $noteID . '/';
+
+        //make the directory if it doesn't already exist
+        if(!file_exists($upload_dir)){
+            mkdir($upload_dir, 0755, true);
+        }
+
+        //make sure there wasnt an error with the upload
+        if($photo['error'] !== UPLOAD_ERR_OK){
+            $this->response['message'] = 'error: photo upload error';
+            $this->response['code'] = 400;
+        }
+
+        //make sure filename is safe
+        $name = preg_replace("/[^A-Z0-9._-]/i", "_", $photo['name']);
+
+        //different dir for each note
+        $i = 0;
+        $parts = pathinfo($name);
+        while(file_exists($upload_dir . $name)){
+            //myfile-1.png
+            $name = $parts['filename'] . '-' . $i . '.' . $parts['extension'];
+        }
+
+        //move file from temp directory
+        $success = move_uploaded_file($photo['tmp_name'], $upload_dir . $name);
+        if(!$success){
+            $this->response['message'] = 'error: unable to save file';
+            $this->response['code'] = 500;
+        }
+
+        //set proper file permissions on new file
+        chmod($upload_dir . $name, 0644);
+
+        //add attachment to DB
+        $att = new Attachment();
+        $att->setNoteID($noteID);
+        $att->setFilename($name);
+        $att->setPath($upload_dir . $name);
+        //gets filtypeID, NOT extension
+        $filetypeID = $att->lookupFiletypeID($parts['extension']);
+        $att->setFiletypeID($filetypeID);
+        $att->save();
+
+        return $att->toArray();
     }
 
     //---------------- NOTES ENDPOINT METHODS ----------------
@@ -288,6 +382,25 @@ class ThrowNoteAPI extends API
                 if(!isset($this->request[$var])) return false;
             }
             return true;
+        }
+        return false;
+    }
+
+    /*
+    *   3.1
+    *   validates an image to make sure it is valid
+    *   helps prevent incorrect uploads/malicious files
+    */
+    private function validatePhoto(){
+        if(!empty($this->files['photo'])){
+            $photo = $this->files['photo'];
+            
+            //verify file is correct type (gif, jpeg, png)
+            $filetype = exif_imagetype($photo['tmp_name']);
+            $allowed = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG);
+            if(in_array($filetype, $allowed)){
+                return true;
+            }
         }
         return false;
     }
