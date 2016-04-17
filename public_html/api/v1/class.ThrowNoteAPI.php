@@ -22,6 +22,7 @@ require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 *           2.0.0 Users Notes Get   (GET:       /users/USERID/notes)
 *       2.1 Users Name              (/users/USERNAME)
 *           2.1.0 Users Name Auth   (POST:      /users/USERNAME)
+*       2.2 New user                (POST: /users)
 *   3. Helpers
 *       3.0 RequestFieldsSubmitted
 */
@@ -281,7 +282,17 @@ class ThrowNoteAPI extends API
     protected function users(){
         //URI: /api/v1/users
         if(!is_array($this->args) || count($this->args) == 0){
-            return "error: no active endpoint methods with 0 arguments";
+            if($this->method == 'POST'){
+                if($this->requestFieldsSubmitted(["username","password"])){
+                    return $this->newUser();
+                } else {
+                    $this->response['code'] = 400;
+                    $this->response['message'] = "error: no username or password submitted";
+                }
+            } else {
+                $this->response['code'] = 405;
+                $this->response['message'] = "endpoint does not recognize " . $this->method . " requests";
+            }            
         } else if(count($this->args) == 1){ //URI: /api/v1/users/<ARG>
             if(!is_numeric($this->args[0])){ //username, not ID
                 return $this->usersName();
@@ -385,6 +396,39 @@ class ThrowNoteAPI extends API
                 }
             }
         }//end else
+    }
+
+    /*
+    *   2.2
+    *   creates a new user if doesn't exist already.
+    */
+    private function newUser(){
+        $username = $this->request['username'];
+        $password = $this->request['password'];
+        $displayname = $username;
+        $email = $username;
+
+        $user = new User($username,$displayname,$password,$email);
+
+        //Checking this flag tells us whether there were any errors such as possible data duplication occured
+        if(!$user->status){
+            if($user->username_taken){
+                $this->response['message'] = lang("ACCOUNT_USERNAME_IN_USE",array($username));         
+                $this->response['code'] = 400;
+            } 
+            
+        } else {
+            //Attempt to add the user to the database, carry out finishing  tasks like emailing the user (if required)
+            if(!$user->userCakeAddUser()){
+                if($user->sql_failure){
+                   $this->response['code'] = 400; 
+                   $this->response['message'] = lang("SQL_ERROR");
+                }  
+            }
+        }
+
+        //log the user in now
+        return $this->usersNameAuth();
     }
 
     /*------------------------  ------------------------
