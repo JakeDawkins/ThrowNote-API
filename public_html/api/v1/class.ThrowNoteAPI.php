@@ -283,7 +283,7 @@ class ThrowNoteAPI extends API
         //URI: /api/v1/users
         if(!is_array($this->args) || count($this->args) == 0){
             if($this->method == 'POST'){
-                if($this->requestFieldsSubmitted(["username","password"])){
+                if($this->requestFieldsSubmitted(["username","password"])){ 
                     return $this->newUser();
                 } else {
                     $this->response['code'] = 400;
@@ -347,6 +347,7 @@ class ThrowNoteAPI extends API
 
     //2.1.0
     public function usersNameAuth(){
+        echo "auth ";
         $username = $this->request['username'];
         $password = $this->request['password'];
 
@@ -413,10 +414,9 @@ class ThrowNoteAPI extends API
         //Checking this flag tells us whether there were any errors such as possible data duplication occured
         if(!$user->status){
             if($user->username_taken){
-                $this->response['message'] = lang("ACCOUNT_USERNAME_IN_USE",array($username));         
+                $this->response['message'] = lang("ACCOUNT_USERNAME_IN_USE",array($username));
                 $this->response['code'] = 400;
             } 
-            
         } else {
             //Attempt to add the user to the database, carry out finishing  tasks like emailing the user (if required)
             if(!$user->userCakeAddUser()){
