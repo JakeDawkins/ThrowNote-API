@@ -111,6 +111,7 @@ class ThrowNoteAPI extends API
         if(!is_array($atts) || count($atts) == 0){
             $this->response['message'] = 'error: no attachments for this note';
             $this->response['code'] = 400;
+            return;
         }
 
         //echo image to browser/client
