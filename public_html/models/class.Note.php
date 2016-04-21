@@ -159,11 +159,13 @@ class Note {
 
 		$results = $db->select($sql);
 
-		$this->id = $id;
-		$this->text = $results[0]["text"];
-		$this->created = $results[0]["created"];
-		$this->updated = $results[0]["updated"];
-		$this->owner = $results[0]["owner"];
+		if(is_array($results) && isset($results[0])){
+			$this->id = $id;
+			$this->text = $results[0]["text"];
+			$this->created = $results[0]["created"];
+			$this->updated = $results[0]["updated"];
+			$this->owner = $results[0]["owner"];		
+		}
 
 		//get all associated tags
 		$sql = "SELECT `name` FROM `tags_notes` INNER JOIN `tags` ON tags_notes.tag = tags.id WHERE `note` = ?"; 
