@@ -348,7 +348,6 @@ class ThrowNoteAPI extends API
 
     //2.1.0
     public function usersNameAuth(){
-        echo "auth ";
         $username = $this->request['username'];
         $password = $this->request['password'];
 
