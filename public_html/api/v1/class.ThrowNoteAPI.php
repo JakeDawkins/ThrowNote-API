@@ -25,6 +25,8 @@ require_once dirname(dirname(dirname(__FILE__))) . '/models/config-uc.php';
 *       2.2 New user                (POST: /users)
 *   3. Helpers
 *       3.0 RequestFieldsSubmitted
+*       3.1 Validate Photo
+*       3.2 Validate Audio
 */
 
 class ThrowNoteAPI extends API
@@ -132,6 +134,10 @@ class ThrowNoteAPI extends API
         return 'delete';
     }
 
+    /*
+    *   handles uploading of a file to a note
+    *   TODO -- check 
+    */  
     private function noteFilePost(){
         //print_r($this->files);
         if(!$this->validatePhoto()) return 'error: photo upload failed'; 
@@ -467,6 +473,23 @@ class ThrowNoteAPI extends API
         }
         return false;
     }
-    
+
+    /*
+    *   3.2
+    *   validates an audio file to make sure it is valid
+    *   helps prevent incorrect uploads/malicious files
+    */
+    protected function validateAudio(){
+        if(!empty($this->files['audio'])){
+            $audio = $this->files['audio'];
+
+            //verify file is correct type and filesize (~20MB)
+            if($audio['type'] == 'audio/mp3' && $audio['size'] < 20000000 && $audio['error'] == 0){
+                return true;
+            }
+            //name, type, tmp_name, error, size
+        }
+        return false;
+    }
  }
  ?>
