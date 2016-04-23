@@ -118,29 +118,112 @@ class ThrowNoteAPI extends API
 
         //echo image to browser/client
         //TODO -- increase from 1 attachment
-        $img = file_get_contents($atts[0]->getPath());
-        if($img == false){ //make sure photo loaded
+        $file = file_get_contents($atts[0]->getPath());
+        if($file == false){ //make sure photo loaded
             $this->response['message'] = 'error: broken path';
             $this->response['code'] = 500;
         }
         
         //change for different types
-        header('content-type: image/png');
-        header("HTTP/1.1 200 OK");
-        echo $img;
+        $filetype = $atts[0]->getFiletypeID();
+        if($filetype == $atts[0]->lookupFiletypeID('png')){
+            header('content-type: image/png');
+            header("HTTP/1.1 200 OK");
+            echo $file;            
+        } else if ($filetype == $atts[0]->lookupFiletypeID('mp3')){
+            header('content-type: audio/mpeg3');
+            header("HTTP/1.1 200 OK");
+            echo $file;
+        }
     }
 
+    //TODO
     private function noteFileDelete(){
-        return 'delete';
+        $noteID = $this->args[0];
+        Attachment::deleteAttachmentsForNote($noteID);
     }
 
     /*
-    *   handles uploading of a file to a note
-    *   TODO -- check 
+    *   handles uploading of a file to a note.
     */  
     private function noteFilePost(){
-        //print_r($this->files);
-        if(!$this->validatePhoto()) return 'error: photo upload failed'; 
+        if($this->validateAudio()) 
+            return $this->noteAudioPost();
+        else if ($this->validatePhoto()) 
+            return $this->notePhotoPost();
+        else {
+            return 'error: file upload failed. could not validate filetype'; 
+        }
+    }
+
+    /*
+    *   adds an audio file (mp3) to a note
+    */
+    private function noteAudioPost(){
+        $note = new Note();
+
+        //fetch and check for valid note
+        $note->fetch($this->args[0]);
+        if($note->getID() == null){
+            $this->response['message'] = 'error: failed to load note with id ' . $this->args[0];
+            $this->response['code'] = 405;
+        }
+
+        //report id
+        $noteID = $this->args[0];
+
+        $audio = $this->files['audio'];
+        $upload_dir = Path::uploads() . $noteID . '/';
+
+        //make the directory if it doesn't already exist
+        if(!file_exists($upload_dir)){
+            mkdir($upload_dir, 0755, true);
+        }
+
+        //make sure there wasnt an error with the upload
+        if($audio['error'] !== UPLOAD_ERR_OK){
+            $this->response['message'] = 'error: audio upload error';
+            $this->response['code'] = 400;
+        }
+
+        //make sure filename is safe
+        $name = preg_replace("/[^A-Z0-9._-]/i", "_", $audio['name']);
+
+        //different dir for each note
+        $i = 0;
+        $parts = pathinfo($name);
+        while(file_exists($upload_dir . $name)){
+            //myfile-1.png
+            $name = $parts['filename'] . '-' . $i . '.' . $parts['extension'];
+        }
+
+        //move file from temp directory
+        $success = move_uploaded_file($audio['tmp_name'], $upload_dir . $name);
+        if(!$success){
+            $this->response['message'] = 'error: unable to save file';
+            $this->response['code'] = 500;
+        }
+
+        //set proper file permissions on new file
+        chmod($upload_dir . $name, 0644);
+
+        //add attachment to DB
+        $att = new Attachment(); 
+        $att->setNoteID($noteID);
+        $att->setFilename($name);
+        $att->setPath($upload_dir . $name);
+        //gets filtypeID, NOT extension
+        $filetypeID = $att->lookupFiletypeID($parts['extension']);
+        $att->setFiletypeID($filetypeID);
+        $att->save();
+
+        return $att->toArray();
+    }
+
+    /*
+    *   adds a photo file (png) to a note
+    */
+    private function notePhotoPost(){
         $note = new Note();
 
         //fetch and check for valid note
@@ -479,7 +562,7 @@ class ThrowNoteAPI extends API
     *   validates an audio file to make sure it is valid
     *   helps prevent incorrect uploads/malicious files
     */
-    protected function validateAudio(){
+    private function validateAudio(){
         if(!empty($this->files['audio'])){
             $audio = $this->files['audio'];
 

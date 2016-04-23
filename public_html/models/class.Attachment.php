@@ -138,7 +138,7 @@ class Attachment {
 	//removes file from filesystem
 	public function deleteAttachment(){
 		$path = $this->path;
-		delete($path);
+		unlink($path);
 
 		$db = new Database();
 		$sql = 'DELETE FROM `attachments` WHERE `id`=?';
@@ -161,6 +161,23 @@ class Attachment {
 			}
 		}
 		return $atts;
+	}
+
+	public static function deleteAttachmentsForNote($noteID){
+		$db = new Database();
+		$sql = 'SELECT `id` FROM `attachments` WHERE `note_id`=?';
+		$sql = $db->prepareQuery($sql, $noteID);
+		$results = $db->select($sql);
+
+		if(is_array($results) && count($results) > 0){
+			foreach ($results as $result) {
+				if(isset($result['id'])){
+					$att = new Attachment();
+					$att->fetch($result['id']);
+					$att->deleteAttachment();
+				}
+			}
+		}
 	}
 
 }
